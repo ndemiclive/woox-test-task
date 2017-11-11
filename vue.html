@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<script src="https://unpkg.com/vue"></script>
+	<script src="https://cdn.jsdelivr.net/npm/vee-validate@latest/dist/vee-validate.js"></script>
+	<link rel="stylesheet" href="style.css">
+	<link href="https://fonts.googleapis.com/css?family=Quicksand:300,400,500,700" rel="stylesheet">
+</head>
+<body>
+	<form id="app">
+		<h1>{{title}}</h1>
+
+		<div class="progress-bar">
+			<div class="step" :class="{'step-1' : true, 'step-completed' : stepCount >= 1}"></div>
+			<div class="step" :class="{'step-2' : true, 'step-completed' : stepCount >= 2}"></div>
+			<div class="step" :class="{'step-3' : true, 'step-completed' : stepCount >= 3}"></div>
+		</div>
+
+		<div v-show="stepCount == 1" class="step-wrapper">
+			<div class="app-fields">
+				<div v-show="!errors.has('email')" class="input-message valid"> email</div>
+				<div v-show="errors.has('email')" class="input-message invalid"> {{ errors.first('email') }}</div>
+				<input 
+					type="email" 
+					name="email"
+					class="app-field user-email" 
+					:class="{'input': true, 'is-danger': errors.has('email') }"
+					v-model="user.email" 
+					v-validate.initial="'required|email|regex:^[a-zA-Z0-9.!#$%&’*+/=?^_`{}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$'">
+					     
+				<div v-show="!errors.has('password')" class="input-message valid"> password</div>
+				<div v-show="errors.has('password')" class="input-message invalid"> {{ errors.first('password') }} </div> 
+				<input 
+					type="password"
+					name="password" 
+					class="app-field user-password"
+					:class="{'input': true, 'is-danger': errors.has('password') }" 
+					v-model="user.password" 
+					v-validate.initial="'required|min:6'">
+				
+				<div v-show="!errors.has('confirmPasswordValue')" class="input-message valid">confirm password</div>
+				<div v-show="errors.has('confirmPasswordValue')" class="input-message invalid">passwords do not match</div> 
+				<input 
+					type="password" 
+					name="confirmPasswordValue"
+					class="app-field user-password-confirm"
+					:class="{'input': true, 'is-danger': errors.has('confirmPasswordValue') }" 
+					v-model="confirmPasswordValue" 
+					v-validate="'required|confirmed:password'"
+					data-vv-as="password">
+			</div>
+			<div class="buttons" v-if="user.email !== ''">
+				<button type="button" class="next-step" v-on:click="nextStep">Next &#8594;</button>
+			</div>
+		</div>
+
+		<div v-show="stepCount == 2" class="step-wrapper">
+			<div v-show="!errors.has('dayOfBirth') 
+								&& !errors.has('monthOfBirth') 
+								&& !errors.has('yearOfBirth')" class="input-message valid center"> date of birth</div>
+			<div v-show="errors.has('dayOfBirth') 
+								|| errors.has('monthOfBirth') 
+								|| errors.has('yearOfBirth')" class="input-message invalid center"> {{ errors.first('dayOfBirth') }}
+																																								<br>{{ errors.first('monthOfBirth') }}
+																																								<br>{{ errors.first('yearOfBirth') }}</div>
+			<div class="app-fields">
+				<div class="user-birth-wrapper">
+					<input 
+						type="text" 
+						name="dayOfBirth"
+						class="app-field user-birth" 
+						:class="{'input': true, 'is-danger': errors.has('dayOfBirth') }"
+						v-model="user.dayOfBirth" 
+						v-validate.initial="'required|date_format:DD'"
+						placeholder="DD">
+					<input 
+						type="text" 
+						name="monthOfBirth"
+						class="app-field user-birth" 
+						:class="{'input': true, 'is-danger': errors.has('monthOfBirth') }"
+						v-model="user.monthOfBirth" 
+						v-validate.initial="'required|date_format:MM'"
+						placeholder="MM">
+					<input 
+					type="text" 
+					name="yearOfBirth"
+					class="app-field user-birth" 
+					:class="{'input': true, 'is-danger': errors.has('yearOfBirth') }"
+					v-model="user.yearOfBirth" 
+					v-validate.initial="'required|max_value:2000|date_format:YYYY'"
+					placeholder="YYYY">
+				</div>
+					     
+				<div v-show="!errors.has('gender')" class="input-message valid center"> gender</div>
+				<div v-show="errors.has('gender')" class="input-message invalid center"> gender is required</div> 
+
+		    <div class="user-gender-wrapper">
+		    	<input 
+		    		type="radio" 
+		    		id="male" 
+		    		value="male" 
+		    		name="gender" 
+		    		v-model="user.gender" 
+		    		v-validate.initial="'required|in:male,female,unspecified'">
+		    	<label for="male">male</label>
+		    	
+		    	<input 
+		    		type="radio" 
+		    		id="female" 
+		    		value="female" 
+		    		name="gender" 
+		    		v-model="user.gender">
+		    	<label for="female">female</label>
+
+		    	<input 
+		    		type="radio" 
+		    		id="unspecified" 
+		    		value="unspecified" 
+		    		name="gender" 
+		    		v-model="user.gender">
+		    	<label for="unspecified">unspecified</label>
+		    </div>
+
+		    <div class="input-message valid center"> where did you hear about us?</div> 
+		    <select v-model="user.hearAboutUs" class="hear-about-us">
+				  <option disabled value=""></option>
+				  <option>option A</option>
+				  <option>option B</option>
+				  <option>option C</option>
+				</select>
+			</div>
+				<div class="buttons">
+					<button 
+						type="button" 
+						class="previous-step" 
+						v-on:click="previousStep">Back</button>
+					<button 
+						type="button" 
+						class="next-step" 
+						v-on:click="nextStep" 
+						v-if="user.dayOfBirth !== '' 
+									|| user.gender !== ''">Next &#8594;</button>
+				</div>
+		</div>
+
+		<div v-show="stepCount == 3" class="step-wrapper">
+			<div class="app-fields">
+				<img class="success" src="img/success.png" alt="success">
+			</div>
+			<button type="button" class="to-dashboard" v-on:click.prevent="toDashboard" v-if="seen">Go to Dashboard &#8594;</button>
+			<div class="dashboard input-message valid center" v-else>This is dashboard ;)</div>
+		</div>
+	</form>
+</body>
+<script>
+	Vue.use(VeeValidate);
+
+	var app = new Vue({
+		el: '#app',
+		data: {
+			title: 'Signup',
+			users: [],
+			user: {
+						email: '',
+						password: '',
+						dayOfBirth: '',
+						monthOfBirth: '',
+						yearOfBirth: '',
+						gender: '',
+						hearAboutUs: ''
+			},
+			confirmPasswordValue: '', 
+			stepCount: 1,
+			seen: true
+		},
+		methods: {
+			validateBeforeSubmit: function () {
+				this.$validator.validateAll().then((result) => {
+	        if (result) {
+	          // eslint-disable-next-line
+	          alert('asd')
+	          return this.stepCount++;
+	        }
+
+	        alert('Correct them errors!');
+	      });
+	    },
+	    nextStep: function () {
+				if (this.stepCount == 1) {
+					if  (!this.errors.has('email') 
+						&& !this.errors.has('password')
+						&& !this.errors.has('confirmPasswordValue')) {
+						return this.stepCount++;
+					}
+				} else if (this.stepCount == 2) {
+					if  (!this.errors.has('dayOfBirth') 
+						&& !this.errors.has('monthOfBirth')
+						&& !this.errors.has('yearOfBirth')
+						&& !this.errors.has('gender')
+						&& !this.errors.has('confirmPasswordValue')) {
+						this.title = 'Thank you!';
+						return this.stepCount++;
+					} 
+				}
+	    },
+	    previousStep: function () {
+				return this.stepCount--;
+	    },
+	    toDashboard: function () {
+	    	this.users.push(this.user);
+	    	console.log(JSON.stringify(this.user));
+	    	this.seen = false;
+	    }
+	  },
+	  computed: {
+	  	dateOfBirth: function () {
+	  		return this.user.dayOfBirth + "." + this.user.monthOfBirth + "." + this.user.yearOfBirth;
+	  	}
+	  }
+	});
+</script>
+</html>
